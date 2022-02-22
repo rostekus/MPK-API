@@ -4,7 +4,7 @@ import sqlite3
 import requests
 import sys
 sys.path.append('..')
-from scripts.timetable import LineNameModel, Stop, TimeTableModel, getLineNameIds
+import timetable.timetable
 from pathlib import Path
 API_KEY ="YOUR_API_KEY"
 
