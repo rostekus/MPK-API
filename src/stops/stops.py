@@ -3,13 +3,17 @@ import re
 import sqlite3
 import requests
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 import timetable.timetable
 from pathlib import Path
-API_KEY ="YOUR_API_KEY"
+
+API_KEY = "YOUR_API_KEY"
+
 
 def data_dir(filename):
-    return Path(__file__).resolve().parents[1].joinpath('data/' + filename)
+    return Path(__file__).resolve().parents[1].joinpath("data/" + filename)
+
 
 # check regex if adress contains Łódź
 def get_location(address, number, added=False):
@@ -34,14 +38,13 @@ def get_location(address, number, added=False):
         find the location, it return (0,0)
     """
     if not isinstance(address, str):
-        raise ValueError('Adress must be a string')
+        raise ValueError("Adress must be a string")
     if not isinstance(number, str):
-        raise ValueError('Number must be a string')
-    base_url = 'https://maps.googleapis.com/maps/api/geocode/json?'
+        raise ValueError("Number must be a string")
+    base_url = "https://maps.googleapis.com/maps/api/geocode/json?"
     params = {
-        'key': API_KEY,
-        'address': f"{address} ({number}), Polska"
-
+        "key": API_KEY,
+        "address": f"{address} ({number}), Polska",
     }
     if len(number) == 3:
         number = "0" + number
@@ -55,24 +58,28 @@ def get_location(address, number, added=False):
 
     lat, lng = None, None
 
-    if response['status'] == 'OK':
+    if response["status"] == "OK":
 
-        if len(response['results']) > 1:
+        if len(response["results"]) > 1:
 
             for number_of_resaults in range(len(response)):
-                if(re.search(number, response['results'][number_of_resaults]['address_components'][0]['long_name'])):
-                    lat, lng = (
-                        response['results'][number_of_resaults]['geometry']['location'].values())
+                if re.search(
+                        number,
+                        response["results"][number_of_resaults]
+                    ["address_components"][0]["long_name"],
+                ):
+                    lat, lng = response["results"][number_of_resaults][
+                        "geometry"]["location"].values()
 
-        if(len(response['results']) == 1 or lat is None):
+        if len(response["results"]) == 1 or lat is None:
 
-            lat, lng = response['results'][0]['geometry']['location'].values()
+            lat, lng = response["results"][0]["geometry"]["location"].values()
 
     else:
         if not added:
-            lat, lng = get_location(address + " Łódź", number, added = True)
+            lat, lng = get_location(address + " Łódź", number, added=True)
         else:
-            return (0,0)
+            return (0, 0)
 
     return lat, lng
 
@@ -93,12 +100,12 @@ def get_stops_location():
     -------
     None
     """
-    lineNameIdDB = getLineNameIds('http://www.mpk.lodz.pl/rozklady/linie.jsp')
-    conn = sqlite3.connect('mydatabase.db')
+    lineNameIdDB = getLineNameIds("http://www.mpk.lodz.pl/rozklady/linie.jsp")
+    conn = sqlite3.connect("mydatabase.db")
     curr = conn.cursor()
 
     with conn:
-        curr. execute("""DROP TABLE IF EXISTS stops
+        curr.execute("""DROP TABLE IF EXISTS stops
         """)
         curr.execute("""CREATE TABLE stops(
             number integer,
@@ -110,13 +117,13 @@ def get_stops_location():
 
     stops = dict()
 
-    conn = sqlite3.connect('mydatabase.db')
+    conn = sqlite3.connect("mydatabase.db")
     curr = conn.cursor()
 
     with conn:
         for lineName in lineNameIdDB.keys():
             try:
-                lineId = LineNameModel().find_id_by_name(lineName)['lineId']
+                lineId = LineNameModel().find_id_by_name(lineName)["lineId"]
                 routeTable = LineNameModel().find_routeTable_by_id(lineId)
                 _ = list(routeTable.values())
             except BaseException:
@@ -125,18 +132,26 @@ def get_stops_location():
             first = list(list(_)[0].keys())[0]
 
             for name, stop in list(_)[0][first].items():
-                if stop['stopNumber'] not in stops:
+                if stop["stopNumber"] not in stops:
                     try:
-                        lat, lng = get_location(name, stop['stopNumber'])
-                        stops[stop['stopNumber']] = Stop(name, lat, lng)
+                        lat, lng = get_location(name, stop["stopNumber"])
+                        stops[stop["stopNumber"]] = Stop(name, lat, lng)
                         curr.execute(
                             "INSERT INTO stops (number , name , lat, lnt)VALUES(? ,?, ?, ?);",
-                            (stop['stopNumber'],
-                             name,
-                             lat,
-                             lng))
+                            (
+                                stop["stopNumber"],
+                                name,
+                                lat,
+                                lng,
+                            ),
+                        )
                     except BaseException:
-                        print("Error :", lineName, name, stop['stopNumber'])
+                        print(
+                            "Error :",
+                            lineName,
+                            name,
+                            stop["stopNumber"],
+                        )
                         continue
 
 
@@ -157,13 +172,13 @@ def get_timetables_json():
     -------
     None
     """
-    lineNameIdDB = getLineNameIds('http://www.mpk.lodz.pl/rozklady/linie.jsp')
+    lineNameIdDB = getLineNameIds("http://www.mpk.lodz.pl/rozklady/linie.jsp")
 
     timetable = dict()
 
     for lineName in lineNameIdDB.keys():
         try:
-            lineId = LineNameModel().find_id_by_name(lineName)['lineId']
+            lineId = LineNameModel().find_id_by_name(lineName)["lineId"]
             routeTable = LineNameModel().find_routeTable_by_id(lineId)
 
             timetable[lineName] = {}
@@ -173,14 +188,20 @@ def get_timetables_json():
                 for stopName in routeTable[lineId][directionName]:
 
                     busStop = routeTable[lineId][directionName][stopName]
-                    direction = busStop['direction']
-                    timetableId = busStop['timeTableId']
-                    stopNumber = busStop['stopNumber']
+                    direction = busStop["direction"]
+                    timetableId = busStop["timeTableId"]
+                    stopNumber = busStop["stopNumber"]
 
-                    url = 'http://www.mpk.lodz.pl/rozklady/tabliczka.jsp'
-                    table = TimeTableModel().get(url, direction, lineName, timetableId, stopNumber)
+                    url = "http://www.mpk.lodz.pl/rozklady/tabliczka.jsp"
+                    table = TimeTableModel().get(
+                        url,
+                        direction,
+                        lineName,
+                        timetableId,
+                        stopNumber,
+                    )
                     timetable[lineName][directionName][stopName] = table
-            print('ADDED', lineName)
+            print("ADDED", lineName)
 
         except BaseException:
             print("Error :", lineName)
@@ -213,7 +234,7 @@ def sqlite_to_json(database):
         json.dump(location, f)
 
 
-def get_stops(filename='timetables.json'):
+def get_stops(filename="timetables.json"):
     """
     Function obtaints stops information from json file created by
     get_stops_location() and sorts its by lines and saves into json file
@@ -240,6 +261,5 @@ def get_stops(filename='timetables.json'):
         json.dump(stops, f)
 
 
-if __name__ == '__main__':
-    get_location("Piotrkowska pl. Niepodległości","0686")
-
+if __name__ == "__main__":
+    get_location("Piotrkowska pl. Niepodległości", "0686")
