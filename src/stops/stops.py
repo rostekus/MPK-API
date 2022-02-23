@@ -2,11 +2,13 @@ import json
 import re
 import sqlite3
 import requests
-import sys
-
-sys.path.append("..")
-import timetable.timetable
 from pathlib import Path
+from timetable.timetable import (
+    getLineNameIds,
+    LineNameModel,
+    Stop,
+    TimeTableModel,
+)
 
 API_KEY = "YOUR_API_KEY"
 
@@ -64,12 +66,14 @@ def get_location(address, number, added=False):
 
             for number_of_resaults in range(len(response)):
                 if re.search(
-                        number,
-                        response["results"][number_of_resaults]
-                    ["address_components"][0]["long_name"],
+                    number,
+                    response["results"][number_of_resaults][
+                        "address_components"
+                    ][0]["long_name"],
                 ):
                     lat, lng = response["results"][number_of_resaults][
-                        "geometry"]["location"].values()
+                        "geometry"
+                    ]["location"].values()
 
         if len(response["results"]) == 1 or lat is None:
 
@@ -105,14 +109,18 @@ def get_stops_location():
     curr = conn.cursor()
 
     with conn:
-        curr.execute("""DROP TABLE IF EXISTS stops
-        """)
-        curr.execute("""CREATE TABLE stops(
+        curr.execute(
+            """DROP TABLE IF EXISTS stops
+        """
+        )
+        curr.execute(
+            """CREATE TABLE stops(
             number integer,
             name text,
             lat real,
             lnt real)
-        """)
+        """
+        )
         conn.commit()
 
     stops = dict()
@@ -137,7 +145,8 @@ def get_stops_location():
                         lat, lng = get_location(name, stop["stopNumber"])
                         stops[stop["stopNumber"]] = Stop(name, lat, lng)
                         curr.execute(
-                            "INSERT INTO stops (number , name , lat, lnt)VALUES(? ,?, ?, ?);",
+                            """INSERT INTO stops
+                        (number , name , lat, lnt)VALUES(? ,?, ?, ?);""",
                             (
                                 stop["stopNumber"],
                                 name,

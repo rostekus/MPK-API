@@ -1,5 +1,5 @@
 import json
-from kdtree import *
+from kdtree.kdtree import kdtree_closest_point
 import boto3
 
 s3 = boto3.client("s3")

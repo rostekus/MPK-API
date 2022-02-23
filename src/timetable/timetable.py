@@ -17,14 +17,14 @@ Functions:
 from dataclasses import dataclass
 from datetime import datetime
 from bs4 import BeautifulSoup
-import sys
 import requests
 from pathlib import Path
 
 w1 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 w2 = " (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36"
 l1 = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
-l2 = "(KHTML, like Gecko) Ubuntu Chromium/62.0.3202.89 Chrome/62.0.3202.89 Safari/537.36"
+l2 = "(KHTML, like Gecko) Ubuntu Chromium/62.0.3202.89" \
+    "Chrome/62.0.3202.89 Safari/537.36"
 agent = {"User-Agent": l1 + l2}
 
 
@@ -66,6 +66,7 @@ class LineNameModel:
     find_routeTabel_by_id(lineId)
         Returns routeTable.
     """
+
     def find_id_by_name(self, lineName):
         """
         Function finds id of the given line.
@@ -114,9 +115,9 @@ class LineNameModel:
         tData = dRoute.find("table").findAll("tr", recursive=False)
         tDirectionTables = tData[1]
         for Table in tDirectionTables.findAll("td", recursive=False):
-            tDirection = Table.find("div", {
-                "class": "headSign"
-            }).contents[0]  # route direction
+            tDirection = Table.find("div", {"class": "headSign"}).contents[
+                0
+            ]  # route direction
             Rows = Table.find("table").findAll("tr", recursive=False)
             for Row in Rows[1:]:  # skipping table header
                 Cells = Row.findAll("td", recursive=False)
@@ -125,20 +126,40 @@ class LineNameModel:
                 sStop = Cells[2].get_text().strip()
                 sStreetStop = (f"{sStreet} {sStop}").lstrip()
 
-                sDirection = (Cells[2].find("a").get("href").partition("?")
-                              [2].split("&")[0].partition("=")[2])
-                sTimeTableId = (Cells[2].find("a").get("href").partition("?")
-                                [2].split("&")[2].partition("=")[2])
-                sNumber = (Cells[2].find("a").get("href").partition("?")
-                           [2].split("&")[3].partition("=")[2])
+                sDirection = (
+                    Cells[2]
+                    .find("a")
+                    .get("href")
+                    .partition("?")[2]
+                    .split("&")[0]
+                    .partition("=")[2]
+                )
+                sTimeTableId = (
+                    Cells[2]
+                    .find("a")
+                    .get("href")
+                    .partition("?")[2]
+                    .split("&")[2]
+                    .partition("=")[2]
+                )
+                sNumber = (
+                    Cells[2]
+                    .find("a")
+                    .get("href")
+                    .partition("?")[2]
+                    .split("&")[3]
+                    .partition("=")[2]
+                )
 
-                dStreetStop.update({
-                    sStreetStop: {
-                        "direction": sDirection,
-                        "stopNumber": sNumber,
-                        "timeTableId": sTimeTableId,
+                dStreetStop.update(
+                    {
+                        sStreetStop: {
+                            "direction": sDirection,
+                            "stopNumber": sNumber,
+                            "timeTableId": sTimeTableId,
+                        }
                     }
-                })
+                )
             dDirectionTable.update({tDirection: dStreetStop})
             dStreetStop = {}
         routeTableDB.update({lineId: dDirectionTable})
@@ -167,8 +188,12 @@ def getLineNameIds():
         tData = lineType.find("table").find("td")
         for dataRow in tData.find_all("a"):
             lineName = dataRow.get_text()
-            lineId = (dataRow.get("href").partition("?")[2].partition("&")
-                      [0].partition("=")[2])
+            lineId = (
+                dataRow.get("href")
+                .partition("?")[2]
+                .partition("&")[0]
+                .partition("=")[2]
+            )
             lineNameId.update({lineName: lineId})
 
     return lineNameId
@@ -188,6 +213,7 @@ class TimeTableModel:
     get_bus_table(lineName, directionName, stopName)
         Class method. Returns routeTable based on real names
     """
+
     def __init__(self):
         pass
 
@@ -217,8 +243,8 @@ class TimeTableModel:
         dict
         """
         lineId = lineNameIdDB[f"{lineName}"]
-        dt = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-        curl = f"{url}?direction={direction}&lineId={lineId}&timetableId={timetableId}&stopNumber={stopNumber}&date={dt}"
+        curl = f"{url}?direction={direction}&lineId={lineId}" \
+            "&timetableId={timetableId}&stopNumber={stopNumber}&date={dt}"
 
         resp = requests.get(curl, headers=agent)
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -226,17 +252,17 @@ class TimeTableModel:
         dTab = soup.find("div", {"id": "dTab"})
         dDayTypeNames = {
             dtname.get_text(): dtname.get("id").replace("_name", "")
-            for dtname in dTab.find("div", {
-                "id": "dDayTypeNames"
-            }).find_all("a")
+            for dtname in dTab.find("div", {"id": "dDayTypeNames"}).find_all(
+                "a"
+            )
         }
         dDayTypes = dTab.find("div", {"id": "dDayTypes"})
 
         dDayTables = {}
         for dName, tName in dDayTypeNames.items():
-            dDayTables[dName] = dDayTypes.find("div", {
-                "id": "table_{}".format(tName)
-            }).find("table")
+            dDayTables[dName] = dDayTypes.find(
+                "div", {"id": "table_{}".format(tName)}
+            ).find("table")
         bustimetable = {f"{lineName}": ""}
         daytimetable = {}
         timetable = {}
@@ -313,8 +339,8 @@ class Table:
     return the Time Table
 
     """
+
     def __init__(self, line, dir, stop):
-        a = ()
         self.line = line
         self.dir = dir
         self.stop = stop

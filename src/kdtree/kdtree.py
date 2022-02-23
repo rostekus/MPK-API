@@ -30,17 +30,23 @@ def distance(p1, p2):
     """
     if len(p1) != len(p1):
         raise ValueError("Please specify the  points in the same dimentions")
-    
-    if not((all(isinstance(i, int) for i in p1)) or all(isinstance(i, float) for i in p1)):
+
+    if not (
+        (all(isinstance(i, int) for i in p1))
+        or all(isinstance(i, float) for i in p1)
+    ):
         raise ValueError(f"Cordinates must me int or floats {p1}")
 
-    if not((all(isinstance(i, int) for i in p2)) or all(isinstance(i, float) for i in p2)):
+    if not (
+        (all(isinstance(i, int) for i in p2))
+        or all(isinstance(i, float) for i in p2)
+    ):
         raise ValueError(f"Cordinates must me int or floats {p2}")
 
     if p1 == p2:
         return 0
     else:
-        return sum((x - y)**2 for x, y in zip(p1, p2))
+        return sum((x - y) ** 2 for x, y in zip(p1, p2))
 
 
 def build_kdtree(points, depth=0):
@@ -117,8 +123,10 @@ def closer_distance(pivot, p1, p2):
             raise TypeError("Dimention of the variables must be the sam,e")
     for x in values:
         if isinstance(x, list) or isinstance(x, tuple):
-            if not (all(isinstance(n, int)
-                        for n in x) and all(isinstance(n, float) for n in x)):
+            if not (
+                all(isinstance(n, int) for n in x)
+                and all(isinstance(n, float) for n in x)
+            ):
                 raise TypeError(f"{x} must be list or tuple")
         else:
             raise TypeError(f"{x} must be list or tuple")
@@ -171,7 +179,7 @@ def kdtree_closest_point(root, point, depth=0):
         root["point"],
     )
 
-    if distance(point, best) > (point[axis] - root["point"][axis])**2:
+    if distance(point, best) > (point[axis] - root["point"][axis]) ** 2:
         best = closer_distance(
             point,
             kdtree_closest_point(opposite_branch, point, depth + 1),
@@ -199,7 +207,7 @@ def kdtree_from_db(db_file) -> dict:
         conn = sqlite3.connect(db_file)
     except BaseException:
         print(f"Cannot open database {db_file}.")
-        return
+        return {}
 
     curr = conn.cursor()
     curr.execute("SELECT lat, lnt, name from stops")
