@@ -1,6 +1,9 @@
-from stops.stops import get_stops_location, get_stops, get_timetables_json
+from stops.stops import (
+    get_stops_location,
+    get_stops,
+    get_timetables_json,
+)
 from kdtree.kdtree import kdtree_from_db, dump_kdtree
-
 
 
 def main():
