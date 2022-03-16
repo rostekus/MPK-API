@@ -37,6 +37,41 @@ Project Organization
     
 ---
 ## How To Use
+#### Demo
+NOTE: It's only for demonstration puposes , the traffic is limited to 20 calls per day.
+Use Postman for better experience, there is free web verstion avaliable at [postman](https://www.postman.com).
+Base url:
+```
+https://tyd8pnt383.execute-api.eu-west-2.amazonaws.com/dev
+```
+x-api-key:
+```
+98G3ckRdeoaLGvaB6b4Li5fmKtNc0DIf188w8Juw
+```
+##### 1. Location to nearest MPK Stop
+```
+Base url/loca?lat=LATITUDE&lnt=LONGITUDE
+```
+Example:
+
+<img src="images/loca.png" width="720" >
+
+##### 2. Time table
+```
+Base url/timetable?line=LINE&dir=DIRECTION&stop=STOP_NAME
+```
+Example:
+
+<img src="images/timetable.png" width="720" >
+
+##### 2. Stops of given bus or tram
+```
+Base url/stops/line=LINE
+```
+Example:
+
+<img src="images/stops.png" width="720" >
+
 
 #### Installation
 Clone the repository
@@ -54,8 +89,9 @@ Specify your Google API KEY in stop.py and run
 python3 src/run.py
 ```
 If you want to deploy MPK API on AWS follow tutorial:
-[youtube](https://www.youtube.com/watch?v=M91vXdjve7A)
-You should also create S3 bucked named mpkapi
+[youtube](https://www.youtube.com/watch?v=M91vXdjve7A).
+
+You should also create S3 bucked named mpkapi and uplode the content of the data folder.
 
 ---
     
@@ -95,5 +131,3 @@ SOFTWARE.
 
 - E-mail - [rmosorov@icloud.com](rmosorov@icloud.com)
 
-
-[Back To The Top](#read-me-template)
