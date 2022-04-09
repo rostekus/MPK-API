@@ -78,7 +78,7 @@ Clone the repository
 ```
 git clone https://github.com/rostekus/MPK-API
 ```
-Setup up
+Setup
 ```
 cd MPK-API
 python3 setup.py install
