@@ -38,7 +38,7 @@ Project Organization
 ---
 ## How To Use
 #### Demo
-NOTE: It's only for demonstration puposes , the traffic is limited to 20 calls per day.
+NOTE: It's only for demonstration purposes , the traffic is limited to 20 calls per day.
 Use Postman for better experience, there is free web verstion avaliable at [postman](https://www.postman.com).
 Base url:
 ```
