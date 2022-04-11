@@ -20,8 +20,8 @@
 ---
 
 ## Description
-
-Creating ReadMe's for your Github repository can be tedious.  I hope this template can save you time and effort as well as provide you with some consistency across your projects.
+One day I just got angry that Google Maps does not correctly shows timetable :) That's why I created this API, what interesting is that it allows you
+find nearest bus stop and shows timetables for that specific stop.
 #### Project Organization
 Project Organization
 ------------
